@@ -1,0 +1,21 @@
+Sub activeRowAndColumnSelection()
+'
+'   activeRowAndColumnSelection Macro
+'   Andy Wayne
+'   E-mail: andy.wayne@foxmail.com
+'
+'
+    Dim maxColumn
+    maxColumn = ActiveSheet.Range("A1").End(xlToRight).Column
+    'MsgBox maxColumn
+    ActiveSheet.Range(Cells(1, 1), Cells(1, maxColumn)).Select
+    Selection.AutoFilter Field:=4, Criteria1:="Closed (11)"
+    'Cancel AutoFilter
+    Selection.AutoFilter
+    
+    Dim maxRow
+    maxRow = ActiveSheet.Range("A1").End(xlDown).Row
+    'MsgBox maxRow
+    ActiveSheet.Range("A1:A" & maxRow).Select
+    
+End Sub
