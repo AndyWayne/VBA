@@ -1,0 +1,54 @@
+Sub Open_Files()
+
+    Dim FileOpen
+    Dim X As Integer
+    
+    Dim SelectedCell
+    
+    
+    Application.ScreenUpdating = False
+    
+    FileOpen = Application.GetOpenFilename(MultiSelect:=True, Title:="Andy Wayne : andy.wayne@huawei.com")
+       
+    X = 1
+    While X <= UBound(FileOpen)
+    
+        Workbooks.Open Filename:=FileOpen(X)
+        'Sheets().Move After:=ThisWorkbook.Sheets(ThisWorkbook.Sheets.Count)
+        Sheets().Move After:=ThisWorkbook.Sheets(X)
+        
+        Sheets(X + 1).Select
+        Range("A1").Select
+        SelectedCell = ActiveCell.FormulaR1C1
+        
+        Select Case SelectedCell
+    
+            Case "INCIDENT_NUMBER"
+                Sheets(X + 1).Name = "Incident Flat"
+                
+            Case "INCIDENT_ID"
+                Sheets(X + 1).Name = "Incident Layered"
+                
+            Case "CHANGE_NUMBER"
+                Sheets(X + 1).Name = "Change Flat"
+                
+            Case "CHANGE_ID"
+                Sheets(X + 1).Name = "Change Layered"
+                
+        End Select
+            
+        
+        X = X + 1
+        
+    Wend
+        
+Exithandler:
+        Application.ScreenUpdating = True
+        
+Exit Sub
+        
+ErrHandler:
+        MsgBox Err.Description
+                
+
+End Sub
