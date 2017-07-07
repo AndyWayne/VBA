@@ -1,3 +1,9 @@
+'
+'   activeRowAndColumnSelection Macro
+'   Andy Wayne
+'   E-mail: andy.wayne@foxmail.com
+'
+'
 Sub Open_Files()
 
     Dim FileOpen
