@@ -1,0 +1,141 @@
+'##############################################################################################################
+'
+'   Desc: Working Hours Calculation(Weekends and Public Holidays are excluded)
+'   Work Hours: Monday - Friday(7:00:00 - 18:30:00)
+'   Author: Andy Wayne
+'   E-mail: andy.wayne@foxmail.com
+'   Version: 1.0
+'   Date: 2017/07/10
+'
+'##############################################################################################################
+'
+Sub WorkingHours()
+
+    'Normal Working Hours
+    NORMALSTARTTIME = CDbl(CDate("7:00:00"))
+    NORMALENDTIME = CDbl(CDate("18:30:00"))
+    'Maximun row number
+    m_Row = Worksheets("Incidents Flat").Cells(2, 16384).End(xlToLeft).Column + 1
+
+    
+    '11 Public Holidays in Zurich 2017
+    PUBLICHOLIDAY = Array("2017-01-02", "2017-04-14", "2017-04-17", "2017-04-24", "2017-05-01", "2017-05-25", "2017-06-05", "2017-08-01", "2017-09-11", "2017-12-25", "2017-12-26")
+
+    For i = 3 To Worksheets("Incidents Flat").Range("A65535").End(xlUp).Row
+    'For i = 68 To 68
+        
+        'Time of the Day
+        w_STime = Range("B" & i) - Int(Range("B" & i))
+        w_ETime = Range("E" & i) - Int(Range("E" & i))
+        'Date of the Day
+        d_SDay = CDate(Int(Range("B" & i)))
+        d_EDay = CDate(Int(Range("E" & i)))
+        p_SFlag = False
+        p_EFlag = False
+        'Week of the Day
+        w_SDay = Weekday(Range("B" & i), vbMonday)
+        w_EDay = Weekday(Range("E" & i), vbMonday)
+        w_SFlag = False
+        w_EFlag = False
+        
+        'Consume working hours
+        consumeHrs = 0
+        
+        'Check if the start day is a pulic holiday
+        For j = 0 To UBound(PUBLICHOLIDAY)
+            If d_SDay = CDate(PUBLICHOLIDAY(j)) Then
+                p_SFlag = True
+                Exit For
+            End If
+        Next
+        'Check if the end day is a pulic holiday
+        For k = 0 To UBound(PUBLICHOLIDAY)
+            If d_EDay = CDate(PUBLICHOLIDAY(k)) Then
+                p_EFlag = True
+                Exit For
+            End If
+        Next
+        'Check if the day is weekends
+        If w_SDay = 6 Or w_SDay = 7 Then
+            w_SFlag = True
+        End If
+        
+        If w_EDay = 6 Or w_EDay = 7 Then
+            w_EFlag = True
+        End If
+        
+            
+        'Same day and both are not public holiday or weekend
+        If Int(Range("B" & i)) = Int(Range("E" & i)) And p_SFlag <> True And w_SFlag <> True Then
+                      
+            If w_ETime < NORMALSTARTTIME Or NORMALENDTIME < w_STime Then
+                consumeHrs = 0
+            ElseIf w_STime < NORMALSTARTTIME And NORMALSTARTTIME < w_ETime And w_ETime < NORMALENDTIME Then
+                consumeHrs = (w_ETime - NORMALSTARTTIME) * 24
+            ElseIf NORMALSTARTTIME < w_STime And w_STime < NORMALENDTIME And NORMALSTARTTIME < w_ETime And w_ETime < NORMALENDTIME Then
+                consumeHrs = (w_ETime - w_STime) * 24
+            ElseIf NORMALSTARTTIME < w_STime And w_STime < NORMALENDTIME And NORMALENDTIME < w_ETime Then
+                consumeHrs = (NORMALENDTIME - w_STime) * 24
+            End If
+        'Same day but public holiday or weekend
+        ElseIf Int(Range("B" & i)) = Int(Range("E" & i)) And p_SFlag = True Or w_SFlag = True Then
+            consumeHrs = 0
+        
+            
+        'Stardate and Enddate are not in the same day and both are not public holiday
+        ElseIf Int(Range("B" & i)) <> Int(Range("E" & i)) And p_SFlag <> True And p_EFlag <> True And w_SFlag <> True And w_EFlag <> True Then
+        
+            'consumeHrs = WorksheetFunction.NetworkDays(Range("B" & i), Range("E" & i), PUBLICHOLIDAY) * (NORMALENDTIME - NORMALSTARTTIME) * 24
+            consumeHrs = WorksheetFunction.NetworkDays(Range("B" & i), Range("E" & i), PUBLICHOLIDAY) * 11.5
+            
+            'Start day
+            If w_STime < NORMALSTARTTIME Or NORMALENDTIME < w_STime Then
+                consumeHrs = consumeHrs - 11.5
+            ElseIf NORMALSTARTTIME < w_STime And w_STime < NORMALENDTIME Then
+                consumeHrs = consumeHrs - 11.5 + (NORMALENDTIME - w_STime) * 24
+            End If
+            
+            'End day
+            If w_ETime < NORMALSTARTTIME Or NORMALENDTIME < w_ETime Then
+                consumeHrs = consumeHrs - 11.5
+            ElseIf NORMALSTARTTIME < w_ETime And w_ETime < NORMALENDTIME Then
+                consumeHrs = consumeHrs - 11.5 + (w_ETime - NORMALSTARTTIME) * 24
+            End If
+        
+        ElseIf Int(Range("B" & i)) <> Int(Range("E" & i)) And p_SFlag <> True And w_SFlag <> True And p_EFlag = True Or w_EFlag = True Then
+            
+            'consumeHrs = WorksheetFunction.NetworkDays(Range("B" & i), Range("E" & i), PUBLICHOLIDAY) * (NORMALENDTIME - NORMALSTARTTIME) * 24
+            consumeHrs = WorksheetFunction.NetworkDays(Range("B" & i), Range("E" & i), PUBLICHOLIDAY) * 11.5
+            
+            'Start day
+            If w_STime < NORMALSTARTTIME Or NORMALENDTIME < w_STime Then
+                consumeHrs = consumeHrs - 11.5
+            ElseIf NORMALSTARTTIME < w_STime And w_STime < NORMALENDTIME Then
+                consumeHrs = consumeHrs - 11.5 + (NORMALENDTIME - w_STime) * 24
+            End If
+           
+        ElseIf Int(Range("B" & i)) <> Int(Range("E" & i)) And p_SFlag = True Or w_SFlag = True And p_EFlag <> True And w_EFlag <> True Then
+        
+            consumeHrs = WorksheetFunction.NetworkDays(Range("B" & i), Range("E" & i), PUBLICHOLIDAY) * 11.5
+            
+            'End day
+            If w_ETime < NORMALSTARTTIME Or NORMALENDTIME < w_ETime Then
+                consumeHrs = consumeHrs - 11.5
+            ElseIf NORMALSTARTTIME < w_ETime And w_ETime < NORMALENDTIME Then
+                consumeHrs = consumeHrs - 11.5 + (w_ETime - NORMALSTARTTIME) * 24
+            End If
+           
+        End If
+        
+    
+        Cells(i, m_Row).Value = consumeHrs
+        Cells(i, m_Row).NumberFormat = "0.000000"
+        
+    Next i
+    'Reminder
+    MsgBox "Working Hours Calculated Completely!"
+
+End Sub
+
+
+
