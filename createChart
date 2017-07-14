@@ -1,0 +1,65 @@
+'##############################################################################################################
+'
+'   Desc: Create Chart
+'   Author: Andy Wayne
+'   E-mail: andy.wayne@foxmail.com
+'   Version: 1.0
+'   Date: 2017/07/14
+'
+'##############################################################################################################
+Sub createChart()
+
+    Application.ScreenUpdating = False
+    
+    'The max weeks of opened tickets based on REPORTED_DATE
+    Worksheets("Incidents").Activate
+    Dim m_Week_Open As Long: m_Week_Open = Cells(Worksheets("Incidents").Range("A1").End(xlDown).Row, 3).Value
+    
+    
+    
+    Worksheets("Pivot_Incident").Activate
+    Range("B13").Select
+    
+    ActiveSheet.Shapes.AddChart2(Left:=48, Top:=164, Width:=700, Height:=300).Select
+
+    
+    ActiveChart.SeriesCollection.NewSeries
+    ActiveChart.FullSeriesCollection(1).Name = "=Pivot_Incident!$B$4"
+    ActiveChart.FullSeriesCollection(1).Values = Worksheets("Pivot_Incident").Range(Cells(4, 3), Cells(4, m_Week_Open + 2))
+    ActiveChart.FullSeriesCollection(1).ChartType = xlColumnClustered
+    ActiveChart.FullSeriesCollection(1).XValues = Worksheets("Pivot_Incident").Range(Cells(3, 3), Cells(3, m_Week_Open + 2))
+    ActiveChart.FullSeriesCollection(1).AxisGroup = 1
+    
+    ActiveChart.SeriesCollection.NewSeries
+    ActiveChart.FullSeriesCollection(2).Name = "=Pivot_Incident!$B$8"
+    ActiveChart.FullSeriesCollection(2).Values = Worksheets("Pivot_Incident").Range(Cells(8, 3), Cells(8, m_Week_Open + 2))
+    ActiveChart.FullSeriesCollection(2).ChartType = xlColumnClustered
+    ActiveChart.FullSeriesCollection(2).AxisGroup = 1
+    
+    ActiveChart.SeriesCollection.NewSeries
+    ActiveChart.FullSeriesCollection(3).Name = "=Pivot_Incident!$B$10"
+    ActiveChart.FullSeriesCollection(3).Values = Worksheets("Pivot_Incident").Range(Cells(10, 3), Cells(10, m_Week_Open + 2))
+    ActiveChart.FullSeriesCollection(3).ChartType = xlLine
+    ActiveChart.FullSeriesCollection(3).AxisGroup = 1
+    
+    ActiveChart.SetElement (msoElementChartTitleAboveChart)
+    ActiveChart.ChartTitle.Text = "Total Incidents opened / resolved per Week"
+    Selection.Format.TextFrame2.TextRange.Characters.Text = "Total Incidents opened / resolved per Week"
+    Selection.Format.TextFrame2.TextRange.Characters(1, 42).Font.Name = "Calibri"
+    Selection.Format.TextFrame2.TextRange.Characters(1, 42).Font.Size = 10.5
+    Selection.Format.TextFrame2.TextRange.Characters(1, 42).Font.Bold = True
+  
+    ActiveChart.SetElement (msoElementDataTableWithLegendKeys)
+    ActiveChart.DataTable.Select
+    Selection.Format.TextFrame2.TextRange.Font.Size = 8
+    Selection.Format.TextFrame2.TextRange.Font.Name = "Calibri"
+    
+    ActiveChart.SetElement (msoElementLegendBottom)
+    ActiveChart.Legend.Select
+    Selection.Format.TextFrame2.TextRange.Font.Size = 8
+    Selection.Format.TextFrame2.TextRange.Font.Name = "Calibri"
+    
+    Worksheets("Pivot_Incident").Columns.EntireColumn.AutoFit
+    Application.ScreenUpdating = True
+
+End Sub
