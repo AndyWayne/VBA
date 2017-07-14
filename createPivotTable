@@ -1,0 +1,62 @@
+'##############################################################################################################
+'
+'   Desc: Create pivot table based on filters
+'   Author: Andy Wayne
+'   E-mail: andy.wayne@foxmail.com
+'   Version: 1.0
+'   Date: 2017/07/14
+'
+'##############################################################################################################
+Sub createPivotTable_Group()
+
+    Sheets("pivot_incident_group").Select
+    Worksheets("pivot_incident").Activate
+    On Error Resume Next
+    ActiveWorkbook.Worksheets("pivot_incident").PivotTables("pt_incidents_1").PivotCache.createPivotTable TableDestination:="pivot_incident_group!R3C1", TableName:="pt_incidents_3"
+   
+    Sheets("pivot_incident_group").Select
+    
+    With ActiveSheet.PivotTables("pt_incidents_3").PivotFields("STATUS_DESC")
+        .Orientation = xlPageField
+        .Position = 1
+        .PivotItems("Closed").Visible = False
+        .PivotItems("Resolved").Visible = False
+    End With
+    
+    With ActiveSheet.PivotTables("pt_incidents_3")
+        .PivotFields("ASSIGNED_GROUP").Orientation = xlRowField
+        .AddDataField ActiveSheet.PivotTables("pt_incidents_3").PivotFields("REPORTED_DATE"), "Count of REPORTED_DATE", xlCount
+        .PivotFields("REPORTED_WEEK").Orientation = xlColumnField
+    End With
+    
+    Cells.Select
+    With Selection.Font
+        .Name = "Calibri"
+        .Size = 9
+        .Bold = False
+    End With
+
+    Range("A3:F4").Select
+    With Selection.Interior
+        .Pattern = xlSolid
+        .PatternColorIndex = xlAutomatic
+        .ThemeColor = xlThemeColorLight1
+        .TintAndShade = 0
+        .PatternTintAndShade = 0
+    End With
+    
+    Range("A9:F9").Select
+    With Selection.Interior
+        .Pattern = xlSolid
+        .PatternColorIndex = xlAutomatic
+        .ThemeColor = xlThemeColorLight1
+        .TintAndShade = 0
+        .PatternTintAndShade = 0
+    End With
+    
+    With Selection.Font
+        .ThemeColor = xlThemeColorDark1
+        .TintAndShade = 0
+    End With
+    
+End Sub
