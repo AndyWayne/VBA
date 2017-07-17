@@ -1,0 +1,58 @@
+'##############################################################################################################
+'
+'   Desc: Create Pivot Tables
+'   Author: Andy Wayne
+'   E-mail: andy.wayne@foxmail.com
+'   Version: 1.0
+'   Date: 2017/07/17
+'
+'##############################################################################################################
+Sub createPivotTable()
+
+    Dim m_Row
+    Dim m_Col
+    Dim m_Week_Open As Long
+    Dim m_Week_Year
+    
+    Dim i
+    
+    Application.ScreenUpdating = False
+    
+    Worksheets("Incidents").Activate
+    m_Row = Worksheets("Incidents").Range("A1").End(xlDown).Row
+    m_Col = Worksheets("Incidents").Range("A1").End(xlToRight).Column
+    m_Week_Open = Cells(m_Row, 3).Value
+    m_Week_Year = 55
+   
+    'Create Pivot Table 1
+    Worksheets("Incidents").Activate
+    On Error Resume Next   
+    ActiveWorkbook.PivotCaches.Create(SourceType:=xlDatabase, SourceData:=Worksheets("Incidents").Range(Cells(1, 1), Cells(m_Row, m_Col)), Version:=6).createPivotTable _
+        TableDestination:=Worksheets("Pivot_Incident").Range("B2"), TableName:="pt_incidents_1"
+        
+    Worksheets("Pivot_Incident").Activate
+    
+    ActiveSheet.PivotTables("pt_incidents_1").AddDataField Field:=ActiveSheet.PivotTables("pt_incidents_1").PivotFields("REPORTED_DATE"), Caption:="total opened", Function:=xlCount
+    ActiveSheet.PivotTables("pt_incidents_1").PivotFields("REPORTED_WEEK").Orientation = xlColumnField
+    ActiveSheet.PivotTables("pt_incidents_1").PivotFields("REPORTED_WEEK").AutoSort xlAscending, "REPORTED_WEEK"
+     
+    'Filter the weeks not more than Open_Weeks
+    For i = m_Week_Open + 1 To m_Week_Year
+        ActiveSheet.PivotTables("pt_incidents_2").PivotFields("LASTRESOLVED_WEEK").PivotItems(i).Visible = False
+    Next
+    
+    'Work out "open TT Backlog"
+    ActiveSheet.Range("B10") = "open TT backlog"
+    ActiveSheet.Range("C10") = ActiveSheet.Range("C4") - ActiveSheet.Range("C8")
+    
+    For i = 4 To m_Week_Open + 2
+        ActiveSheet.Cells(10, i) = ActiveSheet.Cells(4, i) - ActiveSheet.Cells(8, i) + ActiveSheet.Cells(10, i - 1)
+    
+    Next
+    
+    
+    Application.ScreenUpdating = True
+
+        
+
+End Sub
