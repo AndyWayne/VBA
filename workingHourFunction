@@ -1,0 +1,76 @@
+'##############################################################################################################
+'
+'   Desc: Working Hours Calculator
+'   Author: Andy Wayne
+'   E-mail: andy.wayne@foxmail.com
+'   Version: 1.0
+'   Date: 2017/07/27
+'
+'   Notes:
+'       Weekend: Only Sunday
+'       Public Holiday: Specific Holiday List
+'       Working Hours: 7:00:00 - 18:30:00
+'
+'##############################################################################################################
+Function workingHrs(ByVal startDate As Date, ByVal endDate As Date) As Double
+    
+    workhingHrs = 0
+    Dim i As Integer
+    
+    'Weekend or Holiday Flags
+    Dim startDayWeekendFlag As Boolean: startDayWeekendFlag = False
+    Dim endDayWeekendFlag As Boolean: endDayWeekendFlag = False
+    Dim startDayHolidayFlag As Boolean: startDayHolidayFlag = False
+    Dim endDayHolidayFlag As Boolean: endDayHolidayFlag = False
+    
+    'Publich Holidays in Zurich
+    Dim publicHoliday
+    publicHoliday = Array("2017-01-02", "2017-04-14", "2017-04-17", "2017-04-24", "2017-05-01", "2017-05-25", "2017-06-05", "2017-08-01", "2017-09-11", "2017-12-25", "2017-12-26")
+        
+    'Normal Working Hours
+    Dim STARTWORKINGHOUR As Date: STARTWORKINGHOUR = "7:00:00"
+    Dim ENDWORKINGHOUR As Date: ENDWORKINGHOUR = "18:30:00"
+    
+    'Check if the start day and end day are weekends
+    If Weekday(Int(startDate), 2) = 7 Then
+        startDayWeekendFlag = True
+    End If
+    If Weekday(Int(endDate), 2) = 7 Then
+        endDayWeekendFlag = True
+    End If
+    
+    'Check if the start day and end day are holidays
+    For i = 0 To UBound(publicHoliday)
+        If Int(startDate) = Int(CDate(publicHoliday(i))) Then
+            startDayHolidayFlag = True
+        End If
+        If Int(endDate) = Int(CDate(publicHoliday(i))) Then
+            endDayHolidayFlag = True
+        End If
+    Next i
+            
+    workingHrs = 11.5 * WorksheetFunction.NetworkDays_Intl(startDate, endDate, 11, publicHoliday)
+
+    'Start Day Analysis
+    If Not startDayWeekendFlag And Not startDayHolidayFlag Then
+        
+        If CDbl(STARTWORKINGHOUR) < CDbl(startDate) - Int(startDate) And CDbl(startDate) - Int(startDate) < CDbl(ENDWORKINGHOUR) Then
+            workingHrs = workingHrs - 11.5 + 24 * (CDbl(ENDWORKINGHOUR)) - 24 * (CDbl(startDate) - Int(startDate))
+        ElseIf CDbl(ENDWORKINGHOUR) < CDbl(startDate) - Int(startDate) Then
+            workingHrs = workingHrs - 11.5
+        End If
+        
+    End If
+        
+    'End Day Analysis
+    If Not endDayWeekendFlag And Not endDayHolidayFlag Then
+    
+        If CDbl(endDate) - Int(endDate) < CDbl(STARTWORKINGHOUR) Then
+            workingHrs = workingHrs - 11.5
+        ElseIf CDbl(STARTWORKINGHOUR) < CDbl(endDate) - Int(endDate) And CDbl(endDate) - Int(endDate) < CDbl(ENDWORKINGHOUR) Then
+            workingHrs = workingHrs - 11.5 + 24 * (CDbl(endDate) - Int(endDate)) - 24 * CDbl(STARTWORKINGHOUR)
+        End If
+        
+    End If
+    
+End Function
