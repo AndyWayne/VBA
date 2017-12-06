@@ -1,25 +1,27 @@
+Option Explicit
+
 Sub TransposePaste()
 '
-' Transpose Paste
+' Function: Transpose Paste
+' Author: andy.wayne@foxmail.com
 '
 
 Dim i As Integer
 Dim j As Integer: j = 2
-
-    'Worksheets("Sheet1").Activate
+    
+    'Paste the title
+    Range("A1:A5").Copy
+    Range("E1").PasteSpecial Paste:=xlPasteAll, Operation:=xlNone, SkipBlanks:=False, Transpose:=True
+    
+    'Paste the body
     For i = 13 To Worksheets("Sheet1").Range("A65535").End(xlUp).Row
     
-        Range(Cells(i, 1), Cells(i + 4, 1)).Select
-        Selection.Copy
-        
-        Cells(j, 5).Select
-
-        j = j + 1
-        
-        Selection.PasteSpecial Paste:=xlPasteAll, Operation:=xlNone, SkipBlanks:=False, Transpose:=True
+        Range(Cells(i, 1), Cells(i + 4, 1)).Copy
         i = i + 10
         
+        Cells(j, 5).PasteSpecial Paste:=xlPasteAll, Operation:=xlNone, SkipBlanks:=False, Transpose:=True
+        j = j + 1
+          
     Next i
     
-
 End Sub
